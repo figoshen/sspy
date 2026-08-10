@@ -6,11 +6,11 @@
 #include <Misc.au3>
 #include <Array.au3>
 #include <GDIPlus.au3>
-#include "..\..\..\UIAutomation.au3"
+#include "UIAutomation.au3"
 
 #AutoIt3Wrapper_UseX64=n  ;Should be used for stuff like tagpoint having right struct etc. when running on a 64 bits os
 
-Local Const $AutoSpy = 1 ;2000 ; SPY about every 2000 milliseconds automatically, 0 is turn of use only ctrl+w
+Local Const $AutoSpy =0 ;2000 ; SPY about every 2000 milliseconds automatically, 0 is turn of use only ctrl+w
 
 Local $oldUIElement ; To keep track of latest referenced element
 Local $frmSimpleSpy, $edtCtrlInfo, $lblCapture, $lblEscape, $msg, $x, $y, $oUIElement, $oTW, $objParent, $oldElement, $text1, $t
