@@ -42,7 +42,7 @@ Local Const $patternArray[21][3] = [ _
 
 _UIA_Init()
 
-Func _UIA_Init()
+Func _UIA_Init()	;V
 	; The main object with acces to the windows automation api 3.0
 	$UIA_oUIAutomation = ObjCreateInterface($sCLSID_CUIAutomation, $sIID_IUIAutomation, $dtagIUIAutomation)
 	If Not IsObj($UIA_oUIAutomation) Then
@@ -62,7 +62,7 @@ EndFunc   ;==>_UIA_Init
 ;                  |@error=1    - $oElement was not a UI element
 ; ===============================================================================================================================
 ; Returns the value of single property
-Func _UIA_GetPropertyValue($oElement, $iPropertyID)
+Func _UIA_GetPropertyValue($oElement, $iPropertyID)		;V
 	Local $vRetVal
 
 	If Not _UIA_IsElement($oElement) Then
@@ -131,7 +131,7 @@ Func _UIA_IsElement($control)
 	Return IsObj($control) ; derp, TODO: check name?
 EndFunc   ;==>_UIA_IsElement
 
-Func _UIA_GetTrueCondition()
+Func _UIA_GetTrueCondition()	;V
 	Local $oTrueCondition
 	$UIA_oUIAutomation.CreateTrueCondition($oTrueCondition)
 	Return $oTrueCondition
@@ -152,7 +152,7 @@ Func _UIA_GetElementFromPoint($pos)
 	Return $oUIElement
 EndFunc
 
-Func _UIA_GetRawViewWalker()
+Func _UIA_GetRawViewWalker()	;V
 	Local $UIA_pTW
 
 	$UIA_oUIAutomation.RawViewWalker($UIA_pTW)
