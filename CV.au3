@@ -57,7 +57,7 @@ Global $BTool=0
 Global $myLabel=""
 Global $cliptmp,$titletmp,$classtmp
 ; 註冊四大功能熱鍵與安全退出鍵
-HotKeySet("^!i", "CapturePopupControl") ; Ctrl+Alt+I 檢測快顯選單並凍結/解凍
+HotKeySet("^!f", "CapturePopupControl") ; Ctrl+Alt+F 檢測快顯選單並凍結/解凍
 HotKeySet("^!k", "ExportControlClick")  ; Ctrl+Alt+K 輸出 ControlClick 語法
 HotKeySet("^!v", "ExportControlValue")  ; Ctrl+Alt+V 輸出 ControlGetText 語法
 HotKeySet("^!s", "ExportClickAndSend")  ; Ctrl+Alt+S 彈出 InputBox 輸出 Click+Send
@@ -1496,7 +1496,7 @@ Func _GUICreate()
 	_GUICtrlComboBox_SetCurSel(-1, $_Color)
 	GUICtrlCreateLabel('Solid:', 103, 82, 29, 14)
 	$Label[0] = GUICtrlCreateLabel('', 133, 79, 19, 19, $SS_SUNKEN)
-	$myLabel = GUICtrlCreateLabel('C+A+I : 0', 223, 82, 54, 14)
+	$myLabel = GUICtrlCreateLabel('C+A+F : 0', 223, 82, 54, 14)
 	; Browse Tool Group
 	GUICtrlCreateGroup('Browse Tool', 313, 7, 98, 104)
 	$Icon[0] = GUICtrlCreateIcon('', 0, 330, 30, 64, 64)
@@ -2992,11 +2992,11 @@ Func CapturePopupControl()
 	;ToolTip($Gs_Txt,100,100)
 	If $bFrozen Then
 		$Btool=0
-		GUICtrlSetData($myLabel, 'C+A+I : 0')
+		GUICtrlSetData($myLabel, 'C+A+F : 0')
 		GUICtrlSetState($checkboxquotesforcopy, $GUI_UNCHECKED)
 	Else
 		$Btool=1
-		GUICtrlSetData($myLabel, 'C+A+I : 1')
+		GUICtrlSetData($myLabel, 'C+A+F : 1')
 		GUICtrlSetState($checkboxquotesforcopy, $GUI_CHECKED)
 	EndIf
 EndFunc
