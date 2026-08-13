@@ -1,8 +1,3 @@
-#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Add_Constants=y
-#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
-#Region Header
-
 #cs
 
 	Title:          Color Chooser Dialog UDF Library for AutoIt3
