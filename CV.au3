@@ -7,6 +7,7 @@
 	(Control Viewer v1.1) AutoIt Window Information Tool
 
 #ce ----------------------------------------------------------------------------
+#RequireAdmin
 #PRE_UseX64=n
 #Region Resources
 #pragma compile(Icon, 'Resources\CV.ico')
@@ -57,7 +58,7 @@ Global $BTool=0
 Global $myLabel=""
 Global $cliptmp,$titletmp,$classtmp
 ; 註冊四大功能熱鍵與安全退出鍵
-HotKeySet("^!f", "CapturePopupControl") ; Ctrl+Alt+F 檢測快顯選單並凍結/解凍
+HotKeySet("^!i", "CapturePopupControl") ; Ctrl+Alt+I 檢測快顯選單並凍結/解凍
 HotKeySet("^!k", "ExportControlClick")  ; Ctrl+Alt+K 輸出 ControlClick 語法
 HotKeySet("^!v", "ExportControlValue")  ; Ctrl+Alt+V 輸出 ControlGetText 語法
 HotKeySet("^!s", "ExportClickAndSend")  ; Ctrl+Alt+S 彈出 InputBox 輸出 Click+Send
@@ -93,7 +94,7 @@ HotKeySet("{ESC}", "Quit")
 #include <WinAPITheme.au3>
 #include <WindowsConstants.au3>
 #include "ColorChooser.au3"
-#include "UIAutomation.au3"
+#include "_UIAutomation.au3"
 
 Opt('GUIResizeMode', BitOR($GUI_DOCKLEFT, $GUI_DOCKTOP, $GUI_DOCKWIDTH, $GUI_DOCKHEIGHT))
 Opt('MustDeclareVars', 1)
@@ -292,18 +293,19 @@ While 1
 			$classtmp = GUICtrlRead($Input[4])
 
 			If $titletmp <> "" Then
-				$cliptmp &= "TITLE:" & $titletmp & ";"
+				$titletmp = "TITLE:" & $titletmp
 			EndIf
 
 			If $classtmp <> "" Then
-				$cliptmp &= "CLASS:" & $classtmp & ";"
+				$classtmp = ";CLASS:" & $classtmp
 			EndIf
 
-			If $cliptmp <> "" Then
-				if GUICtrlRead($checkboxquotesforcopy)=$GUI_UNCHECKED then
-					ClipPut('"[' & $cliptmp & ']"')
+			If $titletmp&$classtmp <> "" Then
+				if GUICtrlRead($checkboxquotesforcopy)=$GUI_CHECKED then
+					ClipPut('"[' & $titletmp&$classtmp & ']"')
 				Else
-					ClipPut("'[" & $cliptmp & "]'")
+					If GUICtrlRead($Input[17])<>"" Then $cliptmp &= ";INSTANCE:" & GUICtrlRead($Input[17])
+					ClipPut("'[" & StringRegExpReplace($titletmp,"\s.*","")& $classtmp&$cliptmp& "]'")
 				EndIf
 			EndIf
 
@@ -1483,6 +1485,7 @@ Func _GUICreate()
 	$Input[0] = GUICtrlCreateInput('', 133, 29, 36, 19, $Style)
 	$Input[1] = GUICtrlCreateInput('', 177, 29, 36, 19, $Style)
 	$Combo[0] = GUICtrlCreateCombo('', 223, 28, 68, 21, $CBS_DROPDOWNLIST)
+	;MsgBox(0,$Style,$CBS_DROPDOWNLIST)
 	_GUICtrlComboBox_AddString(-1, 'Absolute')
 	_GUICtrlComboBox_AddString(-1, 'Window')
 	_GUICtrlComboBox_AddString(-1, 'Client')
@@ -1496,7 +1499,7 @@ Func _GUICreate()
 	_GUICtrlComboBox_SetCurSel(-1, $_Color)
 	GUICtrlCreateLabel('Solid:', 103, 82, 29, 14)
 	$Label[0] = GUICtrlCreateLabel('', 133, 79, 19, 19, $SS_SUNKEN)
-	$myLabel = GUICtrlCreateLabel('C+A+F : 0', 223, 82, 54, 14)
+	$myLabel = GUICtrlCreateLabel('C+A+I : 0', 223, 82, 54, 14)
 	; Browse Tool Group
 	GUICtrlCreateGroup('Browse Tool', 313, 7, 98, 104)
 	$Icon[0] = GUICtrlCreateIcon('', 0, 330, 30, 64, 64)
@@ -1621,7 +1624,7 @@ Func _GUICreate()
 	_WinAPI_DestroyIcon($hIcon)
 	_GUICtrlListView_SetImageList($hAutoIt, $hIL, 1)
 	$hHeader[1] = _GUICtrlListView_GetHeader(-1)
-	GUICtrlCreateTabItem('📋 UIA')
+	GUICtrlCreateTabItem('UIA ^w')
 	$edtCtrlInfo = GUICtrlCreateEdit("", 18, 180, 390, 210)
 	GUICtrlCreateTabItem('')
 
@@ -2257,15 +2260,7 @@ Func _SetControlInfo($hWnd)
 		_SetData($Input[30], '')
 	EndIf
 EndFunc   ;==>_SetControlInfo
-;~ Title:    $Input[3]	_WinAPI_GetWindowText($hWnd)
-;~ Class:    $Input[4]	_WinAPI_GetClassName($hWnd)
-;~ Style:    $Input[5]	'0x' & Hex(_WinAPI_GetWindowLong($hWnd, $GWL_STYLE),8)
-;~ ExStyle:  $Input[7]
-;~ Position: $Input[9,10]
-;~ Size:     $Input[11,12]
-;~ Handle:   $Input[13]
-;~ PID:      $Input[14]
-;~ Path:     $Input[15]
+
 Func _SetWindowInfo($hWnd)
 	ConsoleWrite('@@ (2154) :(' & @MIN & ':' & @SEC & ') _SetWindowInfo()' & @CR) ;### Function Trace
 	If Not $hWnd Then
@@ -2992,11 +2987,11 @@ Func CapturePopupControl()
 	;ToolTip($Gs_Txt,100,100)
 	If $bFrozen Then
 		$Btool=0
-		GUICtrlSetData($myLabel, 'C+A+F : 0')
+		GUICtrlSetData($myLabel, 'C+A+I : 0')
 		GUICtrlSetState($checkboxquotesforcopy, $GUI_UNCHECKED)
 	Else
 		$Btool=1
-		GUICtrlSetData($myLabel, 'C+A+F : 1')
+		GUICtrlSetData($myLabel, 'C+A+I : 1')
 		GUICtrlSetState($checkboxquotesforcopy, $GUI_CHECKED)
 	EndIf
 EndFunc
@@ -3130,14 +3125,17 @@ Func CTRL_CK()
 	If $titletmp = "" Then Return ""
 	Local $Data = GUICtrlRead($Input[30])
 	$Data=StringLeft(StringRegExpReplace($Data,"\s.*",""),10)
-	Local $cliptmp='ControlClick("' & $titletmp & '","'	& $Data	& '","'
+	Local $cliptmp='ControlClick("' & $titletmp & '" , "'	& $Data	& '" , "'
 	$Data = ""
 	If GUICtrlRead($Input[20]) Then $Data = GUICtrlRead($Input[20])
 	If GUICtrlRead($Input[18]) Then	$Data = GUICtrlRead($Input[18])
-	If $Data = "" Then
+	If GUICtrlRead($Input[20])<>"" Then
+		$cliptmp &=GUICtrlRead($Input[20]) &'" )'
+		;$cliptmp &=$Data &'" , "left" , 1 , '& GUICtrlRead($Input[0]) & ' , ' & GUICtrlRead($Input[1]) & ' ) '
+	Elseif GUICtrlRead($Input[18])<>"" Then
 		$cliptmp &=$Data &'" , "left" , 1 , '& GUICtrlRead($Input[0]) & ' , ' & GUICtrlRead($Input[1]) & ' ) '
 	Else
-		$cliptmp &=$Data &'" )	; , "left" , 1 , '& GUICtrlRead($Input[0]) & ' , ' & GUICtrlRead($Input[1]) & ' ) '
+		$cliptmp =""
 	EndIf
 	$sCtr_Ck = $cliptmp
 	Return $cliptmp
@@ -3213,7 +3211,8 @@ Func GetElementInfo()
 		Local $controlIDString = $title
 		Local $nativeWindow = _UIA_getPropertyValue($oUIElement, $UIA_NativeWindowHandlePropertyId)
 		Local $pos = StringInStr($controlIDString, "-")
-
+		Local $pShen='#include "UIAWrappers.au3"'&@CRLF&'#RequireAdmin'&@CRLF&'AutoItSetOption("MustDeclareVars", 1)'&@CRLF&@CRLF
+		Local $temp=""
 		If $pos > 0 Then
 			$controlIDString = StringLeft($controlIDString, $pos)
 		EndIf
@@ -3236,6 +3235,7 @@ Func GetElementInfo()
 			$codeText1 &= "; First find the object in the parent before you can do something" & @CRLF
 			$codeText1 &= ";$oUIElement=_UIA_getObjectByFindAll(""" & $controlIDString & ".mainwindow"", ""title:=" & $title & ";ControlType:=" & $controltypeName & """, $treescope_subtree)" & @CRLF
 			$codeText1 &= "Local $oUIElement=_UIA_getObjectByFindAll($oP0, ""title:=" & $title & ";ControlType:=" & $controltypeName & """, $treescope_subtree)" & @CRLF
+			$temp = "Local $oUIElement=_UIA_getObjectByFindAll($oMain, ""title:=" & $title & ";ControlType:=" & $controltypeName & """, $treescope_subtree)" & @CRLF & "_UIA_action($oUIElement,""click"")" & @CRLF
 			$codeText1 &= "_UIA_action($oUIElement,""click"")" & @CRLF
 		EndIf
 
@@ -3258,16 +3258,24 @@ Func GetElementInfo()
 					 & ",<" & $pControltypeId & ">" & @TAB & ", (" & Hex($pControltypeId) & ")" & @TAB & @CRLF
 			$pText1 = $pText1 & $pDefaultExpression & @TAB & @CRLF
 			If $i = $parentCount - 1 Then
-				$pCodeText2 = $pCodeText2 & "Local $oP" & $i & "=_UIA_getObjectByFindAll($UIA_oDesktop, " & $pDefaultExpression & ", $treescope_children)" & @TAB & @CRLF
+				$pCodeText2 &= "Local $oP" & $i & "=_UIA_getObjectByFindAll($UIA_oDesktop, " & $pDefaultExpression & ", $treescope_children)" & @TAB & @CRLF
+				Local $tmp=StringRegExpReplace($ptitle,'\s.*','')
+				If $tmp Then 
+					$pShen &= 'Local $oMain=_UIA_getObjectByFindAll($UIA_oDesktop, "Title:=(' & StringRegExpReplace(StringRegExpReplace($ptitle,'\(.*','') , '\s.*','') &'.*);controltype:=' & $pcontroltypeName & ';class:='& $pclass&'", $treescope_children)' & @CRLF
+					;Local $oP3=_UIA_getObjectByFindAll($UIA_oDesktop, "Title:=墓政業務;controltype:=UIA_WindowControlTypeId;class:=PRG8c000000", $treescope_children)	
+				Else
+					$pShen &= "Local $oMain" & $i & "=_UIA_getObjectByFindAll($UIA_oDesktop, " & $pDefaultExpression & ", $treescope_children)" & @TAB & @CRLF
+				EndIf
+				$pShen &= '_UIA_Action($oMain,"setfocus")' & @CRLF
 			Else
 				If $i <= $parentCount - 2 Then
-					$pCodeText2 = $pCodeText2 & "Local $oP" & $i & "=_UIA_getObjectByFindAll($oP" & $i + 1 & ", " & $pDefaultExpression & ", $treescope_children)" & @TAB & @CRLF
-
+					$pCodeText2 &= "Local $oP" & $i & "=_UIA_getObjectByFindAll($oP" & $i + 1 & ", " & $pDefaultExpression & ", $treescope_children)" & @TAB & @CRLF
+					
 				EndIf
 
 			EndIf
 			If ($pNativeWindow <> 0) And ($i <> $parentCount) Then
-				$pCodeText2 = $pCodeText2 & "_UIA_Action($oP" & $i & ",""setfocus"")" & @CRLF
+				$pCodeText2 &= "_UIA_Action($oP" & $i & ",""setfocus"")" & @CRLF
 			EndIf
 		Next
 
@@ -3280,13 +3288,13 @@ Func GetElementInfo()
 		$text1 &= $pCodeText2
 		$text1 &= $codeText1
 		;----------------------------
-		Local $tmp=""
+		$tmp="# -*- coding:utf-8 -*-"&@CRLF
 		CTRL_CK()
 		If $sCtr_Ck<>"" Then $tmp&=";" & $sCtr_Ck &@CRLF
 		CTRL_SD()
 		If $sCtr_SD<>"" Then $tmp&=";" & $sCtr_SD &@CRLF&@CRLF
-		$tmp&= "#include ""UIAWrappers.au3""" & @CRLF& "AutoItSetOption(""MustDeclareVars"", 1)" & @CRLF  & @CRLF& $pCodeText2& $codeText1
-		Local $hFile = FileOpen( @ScriptDir & "\Au3\CodeGen.au3", BitOR($FO_OVERWRITE, $FO_UTF8_NOBOM) )
+		$tmp&= $pShen& $temp
+		Local $hFile = FileOpen( @ScriptDir & "\CodeGen.au3", BitOR($FO_OVERWRITE, $FO_UTF8_NOBOM) ) ; $FO_OVERWRITE (2) ;$FO_UTF8 (128)  ;$FO_UTF8_NOBOM (256)
 		If $hFile <> -1 Then
 			FileWrite($hFile, $tmp)
 			FileClose($hFile)
